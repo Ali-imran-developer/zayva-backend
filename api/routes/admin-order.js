@@ -1,11 +1,5 @@
 const express = require("express");
-
-const {
-  getAllOrdersOfAllUsers,
-  getOrderDetailsForAdmin,
-  updateOrderStatus,
-} = require("../../controllers/admin/order-controller");
-
+const { getAllOrdersOfAllUsers, getOrderDetailsForAdmin, updateOrderStatus} = require("../controllers/admin-order");
 const router = express.Router();
 
 router.get("/get", getAllOrdersOfAllUsers);

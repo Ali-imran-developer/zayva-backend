@@ -1,17 +1,10 @@
-const Feature = require("../../models/Feature");
+const Feature = require("../models/Feature");
 
 const addFeatureImage = async (req, res) => {
   try {
     const { image } = req.body;
-
-    console.log(image, "image");
-
-    const featureImages = new Feature({
-      image,
-    });
-
+    const featureImages = new Feature({ image });
     await featureImages.save();
-
     res.status(201).json({
       success: true,
       data: featureImages,
@@ -41,7 +34,6 @@ const getFeatureImages = async (req, res) => {
         image.image = null;
       }
     });
-
     await Promise.all(imagePromises);
     const filteredImages = validImages.filter(image => image.image);
     res.status(200).json({

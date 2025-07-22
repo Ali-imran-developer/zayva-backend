@@ -1,6 +1,6 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const User = require("../../models/User");
+const User = require("../models/User");
 
 //register
 const registerUser = async (req, res) => {
@@ -88,7 +88,6 @@ const loginUser = async (req, res) => {
 };
 
 //logout
-
 const logoutUser = (req, res) => {
   res.clearCookie("token").json({
     success: true,
