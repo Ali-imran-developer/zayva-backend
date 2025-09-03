@@ -3,16 +3,23 @@ const Product = require("../models/Product");
 
 const handleImageUpload = async (req, res) => {
   try {
-    const b64 = Buffer.from(req.file.buffer).toString("base64");
-    const url = "data:" + req.file.mimetype + ";base64," + b64;
-    const result = await ImageUploadUtil(url);
+    if (!req.files || req.files.length === 0) {
+      return res.json({ success: false, message: "No files uploaded" });
+    }
+    const uploadPromises = req.files.map(async (file) => {
+      const b64 = Buffer.from(file.buffer).toString("base64");
+      const url = "data:" + file.mimetype + ";base64," + b64;
+      const result = await ImageUploadUtil(url);
+      return result.secure_url;
+    });
+    const uploadedImages = await Promise.all(uploadPromises);
 
     res.json({
       success: true,
-      result,
+      images: uploadedImages,
     });
   } catch (error) {
-    console.log(error);
+    console.error(error);
     res.json({
       success: false,
       message: "Error occured",
@@ -20,11 +27,10 @@ const handleImageUpload = async (req, res) => {
   }
 };
 
-//add a new product
 const addProduct = async (req, res) => {
   try {
     const {
-      image,
+      images,
       title,
       description,
       category,
@@ -38,7 +44,7 @@ const addProduct = async (req, res) => {
     console.log(averageReview, "averageReview");
 
     const newlyCreatedProduct = new Product({
-      image,
+      images,
       title,
       description,
       category,
@@ -62,8 +68,6 @@ const addProduct = async (req, res) => {
     });
   }
 };
-
-//fetch all products
 
 const fetchAllProducts = async (req, res) => {
   try {

@@ -20,27 +20,26 @@ const addFeatureImage = async (req, res) => {
 
 const getFeatureImages = async (req, res) => {
   try {
-    const images = await Feature.find({});
-    const validImages = images.filter(image => image.image && image.image.trim() !== "");
-    const imagePromises = validImages.map(async (image) => {
-      const url = image.image;     
+    const features = await Feature.find({});
+    const allImages = features.flatMap(feature => feature.image || []);
+    const validImages = allImages.filter(img => img && img.trim() !== "");
+    const imagePromises = validImages.map(async (url) => {
       try {
-        const response = await fetch(url, { method: 'HEAD' }); 
-        if (!response.ok) {
-          image.image = null;
-        }
+        const response = await fetch(url, { method: "HEAD" });
+        return response.ok ? url : null;
       } catch (error) {
         console.error(`Error fetching image: ${url}`, error);
-        image.image = null;
+        return null;
       }
     });
-    await Promise.all(imagePromises);
-    const filteredImages = validImages.filter(image => image.image);
+    const checkedImages = await Promise.all(imagePromises);
+    const filteredImages = checkedImages.filter(Boolean);
     res.status(200).json({
       success: true,
       data: filteredImages,
     });
-  } catch (e) {
+  } catch (error) {
+    console.error(error);
     res.status(500).json({
       success: false,
       message: "Some error occurred!",
