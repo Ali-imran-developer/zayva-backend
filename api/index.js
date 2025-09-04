@@ -19,8 +19,9 @@ const app = express();
 dbConnect();
 app.use(express.json());
 app.use(cors({
-  origin : "https://zayva.vercel.app",
-  // origin : "http://localhost:5173",
+  origin: (origin, callback) => {
+    callback(null, origin || true);
+  },
   methods: ["GET", "POST", "DELETE", "PUT"],
   allowedHeaders: ["Content-Type", "Authorization", "Cache-Control", "Expires", "Pragma",],
   credentials: true,
