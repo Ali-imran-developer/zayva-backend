@@ -1,72 +1,61 @@
+const mongoose = require("mongoose");
 const Cart = require("../models/Cart");
 const Product = require("../models/Product");
 
 const addToCart = async (req, res) => {
   try {
-    const { userId, productId, quantity } = req.body;
-    if (!userId || !productId || quantity <= 0) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid data provided!",
-      });
+    const { userId, guestId, productId, quantity } = req.body;
+    if ((!userId && !guestId) || !productId || quantity <= 0) {
+      return res.status(400).json({ success: false, message: "Invalid data provided!" });
     }
     const product = await Product.findById(productId);
-    if (!product) {
-      return res.status(404).json({
-        success: false,
-        message: "Product not found",
-      });
-    }
-    console.log("product", product);
-    let cart = await Cart.findOne({ userId });
+    if (!product) return res.status(404).json({ success: false, message: "Product not found" });
+    const filter = userId ? { userId } : { guestId };
+    let cart = await Cart.findOne(filter);
     if (!cart) {
-      cart = new Cart({ userId, items: [] });
+      cart = new Cart({ ...filter, items: [] });
     }
-    const findCurrentProductIndex = cart.items.findIndex((item) => item.productId.toString() === productId);
-    if (findCurrentProductIndex === -1) {
+    const index = cart.items.findIndex(item => item.productId.toString() === productId);
+    if (index === -1) {
       cart.items.push({ productId, quantity });
     } else {
-      cart.items[findCurrentProductIndex].quantity += quantity;
+      cart.items[index].quantity += quantity;
     }
     await cart.save();
-    res.status(200).json({
-      success: true,
-      data: cart,
-    });
+    res.status(200).json({ success: true, message: "Product is added to cart", data: cart });
   } catch (error) {
     console.log(error);
-    res.status(500).json({
-      success: false,
-      message: "Error",
-    });
+    res.status(500).json({ success: false, message: error });
   }
 };
 
 const fetchCartItems = async (req, res) => {
   try {
-    const { userId } = req.params;
-    if (!userId) {
-      return res.status(400).json({
-        success: false,
-        message: "User id is manadatory!",
-      });
+    const { userId, guestId } = req.query;
+    let filter = {};
+    if (userId) {
+      if (!mongoose.Types.ObjectId.isValid(userId)) {
+        return res.status(400).json({ success: false, message: "Invalid userId" });
+      }
+      filter = { userId };
+    } else if (guestId) {
+      filter = { guestId };
+    } else {
+      return res.status(400).json({ success: false, message: "UserId or GuestId is mandatory!" });
     }
-    const cart = await Cart.findOne({ userId }).populate({
+    let cart = await Cart.findOne(filter).populate({
       path: "items.productId",
       select: "images title price salePrice",
     });
     if (!cart) {
-      return res.status(404).json({
-        success: false,
-        message: "Cart not found!",
-      });
+      return res.status(200).json({ success: true, data: { items: [] } });
     }
-    const validItems = cart.items.filter((productItem) => productItem.productId);
+    const validItems = cart.items.filter((item) => item.productId);
     if (validItems.length < cart.items.length) {
       cart.items = validItems;
       await cart.save();
     }
-    const populateCartItems = validItems?.map((item) => ({
+    const populateCartItems = validItems.map((item) => ({
       productId: item.productId._id,
       images: item.productId.images,
       title: item.productId.title,
@@ -83,11 +72,8 @@ const fetchCartItems = async (req, res) => {
       },
     });
   } catch (error) {
-    console.log(error);
-    res.status(500).json({
-      success: false,
-      message: "Error",
-    });
+    console.log("Error in fetching cart: ", error);
+    res.status(500).json({ success: false, message: "Error" });
   }
 };
 
