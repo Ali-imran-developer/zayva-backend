@@ -29,58 +29,35 @@ const handleImageUpload = async (req, res) => {
 
 const addProduct = async (req, res) => {
   try {
-    const {
-      images,
-      title,
-      description,
-      category,
-      brand,
-      price,
-      salePrice,
-      totalStock,
-      averageReview,
-    } = req.body;
-
-    console.log(averageReview, "averageReview");
-
-    const newlyCreatedProduct = new Product({
-      images,
-      title,
-      description,
-      category,
-      brand,
-      price,
-      salePrice,
-      totalStock,
-      averageReview,
-    });
-
+    const { images, title, description, productType, category, brand, price, salePrice, totalStock, averageReview } = req.body;
+    const newlyCreatedProduct = new Product({ images, title, description, productType, category, brand, price, salePrice, totalStock, averageReview });
     await newlyCreatedProduct.save();
     res.status(201).json({
       success: true,
+      message: "Product created successfully",
       data: newlyCreatedProduct,
     });
-  } catch (e) {
-    console.log(e);
+  } catch (error) {
+    console.log(error);
     res.status(500).json({
       success: false,
-      message: "Error occured",
+      message: "Internal server error",
     });
   }
 };
 
 const fetchAllProducts = async (req, res) => {
   try {
-    const listOfProducts = await Product.find({});
+    const listOfProducts = await Product.find().sort({ createdAt: -1 });
     res.status(200).json({
       success: true,
       data: listOfProducts,
     });
-  } catch (e) {
-    console.log(e);
+  } catch (error) {
+    console.log(error);
     res.status(500).json({
       success: false,
-      message: "Error occured",
+      message: "Internal server error",
     });
   }
 };
@@ -93,6 +70,7 @@ const editProduct = async (req, res) => {
       image,
       title,
       description,
+      productType,
       category,
       brand,
       price,
@@ -111,17 +89,18 @@ const editProduct = async (req, res) => {
     findProduct.title = title || findProduct.title;
     findProduct.description = description || findProduct.description;
     findProduct.category = category || findProduct.category;
+    findProduct.productType = productType || findProduct.productType;
     findProduct.brand = brand || findProduct.brand;
     findProduct.price = price === "" ? 0 : price || findProduct.price;
-    findProduct.salePrice =
-      salePrice === "" ? 0 : salePrice || findProduct.salePrice;
+    findProduct.salePrice = salePrice === "" ? 0 : salePrice || findProduct.salePrice;
     findProduct.totalStock = totalStock || findProduct.totalStock;
-    findProduct.image = image || findProduct.image;
+    findProduct.images = image || findProduct.images;
     findProduct.averageReview = averageReview || findProduct.averageReview;
 
     await findProduct.save();
     res.status(200).json({
       success: true,
+      message: "Product updated successfully",
       data: findProduct,
     });
   } catch (e) {
