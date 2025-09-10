@@ -1,3 +1,4 @@
+require("dotenv").config();
 const express = require("express");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
@@ -5,6 +6,7 @@ const dbConnect = require("./dbConnect");
 const serverless = require("serverless-http");
 const authRouter = require("./routes/auth-routes");
 const adminProductsRouter = require("./routes/admin-products");
+const adminCustomerRouter = require("./routes/customer-route");
 const adminOrderRouter = require("./routes/admin-order");
 const shopProductsRouter = require("./routes/user-products");
 const shopCartRouter = require("./routes/cart-routes");
@@ -13,7 +15,6 @@ const shopOrderRouter = require("./routes/user-order");
 const shopSearchRouter = require("./routes/search-routes");
 const shopReviewRouter = require("./routes/review-routes");
 const commonFeatureRouter = require("./routes/feature-routes");
-require("dotenv").config();
 
 const app = express();
 dbConnect();
@@ -31,6 +32,7 @@ app.use(cookieParser());
 app.use(express.json());
 app.use("/api/auth", authRouter);
 app.use("/api/admin/products", adminProductsRouter);
+app.use("/api/admin/customer", adminCustomerRouter);
 app.use("/api/admin/orders", adminOrderRouter);
 app.use("/api/shop/products", shopProductsRouter);
 app.use("/api/shop/cart", shopCartRouter);
