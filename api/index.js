@@ -5,6 +5,8 @@ const cors = require("cors");
 const dbConnect = require("./dbConnect");
 const serverless = require("serverless-http");
 const authRouter = require("./routes/auth-routes");
+const blogsRouter = require("./routes/blogs-routes");
+const contactRouter = require("./routes/contact-routes");
 const adminProductsRouter = require("./routes/admin-products");
 const adminCustomerRouter = require("./routes/customer-route");
 const adminOrderRouter = require("./routes/admin-order");
@@ -31,6 +33,8 @@ app.use(cors({
 app.use(cookieParser());
 app.use(express.json());
 app.use("/api/auth", authRouter);
+app.use("/api/blogs", blogsRouter);
+app.use("/api/contact", contactRouter);
 app.use("/api/admin/products", adminProductsRouter);
 app.use("/api/admin/customer", adminCustomerRouter);
 app.use("/api/admin/orders", adminOrderRouter);

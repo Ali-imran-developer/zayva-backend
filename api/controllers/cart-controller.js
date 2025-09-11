@@ -25,7 +25,7 @@ const addToCart = async (req, res) => {
     res.status(200).json({ success: true, message: "Product is added to cart", data: cart });
   } catch (error) {
     console.log(error);
-    res.status(500).json({ success: false, message: error });
+    res.status(500).json({ success: false, message: "Internal Server Error" });
   }
 };
 
@@ -34,9 +34,9 @@ const fetchCartItems = async (req, res) => {
     const { userId, guestId } = req.query;
     let filter = {};
     if (userId) {
-      if (!mongoose.Types.ObjectId.isValid(userId)) {
-        return res.status(400).json({ success: false, message: "Invalid userId" });
-      }
+      // if (!mongoose.Types.ObjectId.isValid(userId)) {
+      //   return res.status(400).json({ success: false, message: "Invalid userId" });
+      // }
       filter = { userId };
     } else if (guestId) {
       filter = { guestId };
@@ -73,7 +73,7 @@ const fetchCartItems = async (req, res) => {
     });
   } catch (error) {
     console.log("Error in fetching cart: ", error);
-    res.status(500).json({ success: false, message: "Error" });
+    res.status(500).json({ success: false, message: "Internal Server Error" });
   }
 };
 

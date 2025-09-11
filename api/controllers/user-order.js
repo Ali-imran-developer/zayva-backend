@@ -65,7 +65,7 @@ const createOrder = async (req, res) => {
           <div style="font-family: Arial, sans-serif; background-color:#f9f9f9; padding:30px;">
             <div style="max-width:600px; margin:auto; background:#ffffff; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.1); overflow:hidden;">
               
-              <div style="background-color:#222; padding:20px; text-align:center;">
+              <div style="background-color:#ffffff; padding:20px; text-align:center;">
                 <img src="https://www.meeras-clothing.com/meeras-logo.png" alt="Meeras Clothing" style="width:150px;" />
               </div>
               
@@ -234,16 +234,13 @@ const getAllOrdersByUser = async (req, res) => {
 const getOrderDetails = async (req, res) => {
   try {
     const { id } = req.params;
-
     const order = await Order.findById(id);
-
     if (!order) {
       return res.status(404).json({
         success: false,
         message: "Order not found!",
       });
     }
-
     res.status(200).json({
       success: true,
       data: order,
