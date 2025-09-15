@@ -69,4 +69,26 @@ const getProductDetails = async (req, res) => {
   }
 };
 
-module.exports = { getFilteredProducts, getProductDetails };
+const getProductsByType = async (req, res) => {
+  try {
+    const { productType } = req.params;
+    console.log("productType", productType);
+    if (!productType) {
+      return res.status(400).json({ message: "productType is required" });
+    }
+    const products = await Product.find({ productType });
+    if (!products.length) {
+      return res.status(200).json({ 
+        success: true, 
+        data: [], 
+        message: "No products found for this productType" 
+      });
+    }
+    res.status(200).json({ success: true, data: products });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
+module.exports = { getFilteredProducts, getProductDetails, getProductsByType };
