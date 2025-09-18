@@ -2,7 +2,7 @@ const Product = require("../models/Product");
 
 const getFilteredProducts = async (req, res) => {
   try {
-    const { category = [], brand = [], sortBy = "price-lowtohigh", page = 1, limit = 10, search = ""  } = req.query;
+    const {  category = [],  brand = [],  sortBy = "newest",  page = 1,  limit = 10,  search = ""  } = req.query;
     let filters = {};
     if (category.length) {
       filters.category = { $in: category.split(",") };
@@ -30,11 +30,14 @@ const getFilteredProducts = async (req, res) => {
 
       case "title-ztoa":
         sort.title = -1;
+        break;
 
+      case "newest":
+        sort.createdAt = -1;
         break;
 
       default:
-        sort.price = 1;
+        sort.createdAt = -1;
         break;
     }
     const options = [
@@ -48,7 +51,7 @@ const getFilteredProducts = async (req, res) => {
     let results = {};
     for (let opt of options) {
       const optFilters = { ...filters, productType: opt.id };
-      const products = await Product.find(optFilters).sort(sort).limit(10);
+      const products = await Product.find(optFilters).sort({ createdAt: -1 }).limit(10);
       if (products.length > 0) {
         results[opt.id] = products;
       }

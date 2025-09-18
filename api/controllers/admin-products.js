@@ -48,10 +48,14 @@ const addProduct = async (req, res) => {
 
 const fetchAllProducts = async (req, res) => {
   try {
-    const listOfProducts = await Product.find().sort({ createdAt: -1 });
+    const { search = "", page = 1, limit = 12 } = req.query;
+    const filter = search ? { title: { $regex: search, $options: "i" } } : {};
+    const totalProducts = await Product.countDocuments(filter);
+    const products = await Product.find(filter).sort({ createdAt: -1 }).skip((page - 1) * limit).limit(Number(limit));
     res.status(200).json({
       success: true,
-      data: listOfProducts,
+      length: totalProducts,
+      data: products,
     });
   } catch (error) {
     console.log(error);
